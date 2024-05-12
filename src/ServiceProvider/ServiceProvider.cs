@@ -7,6 +7,7 @@ namespace Unity.Microsoft.DependencyInjection
 {
     public class ServiceProvider : IServiceProvider, 
                                    ISupportRequiredService,
+                                   IKeyedServiceProvider,
                                    IServiceScopeFactory, 
                                    IServiceScope, 
                                    IDisposable
@@ -100,6 +101,28 @@ namespace Unity.Microsoft.DependencyInjection
         {
             Dispose(true);
             GC.SuppressFinalize(this);
+        }
+
+        public object GetKeyedService(Type serviceType, object serviceKey)
+        {
+            if (null == _container)
+                throw new ObjectDisposedException(nameof(IServiceProvider));
+
+            try
+            {
+                return _container.Resolve(serviceType, (string) serviceKey);
+            }
+            catch { /* Ignore */}
+
+            return null;
+        }
+
+        public object GetRequiredKeyedService(Type serviceType, object serviceKey)
+        {
+            if (null == _container)
+                throw new ObjectDisposedException(nameof(IServiceProvider));
+
+            return _container.Resolve(serviceType, (string) serviceKey);
         }
 
         #endregion
